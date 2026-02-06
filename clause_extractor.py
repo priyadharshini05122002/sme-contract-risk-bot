@@ -1,58 +1,39 @@
 import re
 from typing import List
-from utils import is_resume_section, looks_like_contract
 
 def extract_clauses(text: str) -> List[str]:
     """
-    Improved splitter that handles:
-    - Numbered lists (1., 2., 3., ...)
-    - Hindi + English mixed text
-    - PDF extraction artifacts (extra spaces, no line breaks)
+    Robust clause extractor that works for:
+    - PDF text
+    - paragraph contracts
+    - numbered agreements
+    - badly formatted files
     """
-    if not text or len(text.strip()) < 50:
+
+    if not text or len(text.strip()) < 40:
         return []
 
-    # Normalize: fix line endings + reduce multiple blanks
+    # Normalize spacing
     t = re.sub(r'\r\n?', '\n', text)
-    t = re.sub(r'\s*\n\s*\n\s*', '\n\n', t)          # normalize paragraph breaks
-    t = re.sub(r'([।।])\s*', r'\1\n', t)            # Hindi danda → new line
+    t = re.sub(r'\n+', '\n', t)
+    t = re.sub(r'\s+', ' ', t)
 
-    # Try to find numbered items (very common in risk analysis docs)
-    # Look for patterns like:   1.   2)   3 –   etc.
-    numbered_split = r'(?=(?:^|\s)(?:\d{1,2}|[IVXLCDM]+)[.)–—-]\s+)'
-  
+    # 1️⃣ Try numbered clauses first
+    numbered = re.split(r'(?=\d+\.\s+)', t)
+    clauses = [c.strip() for c in numbered if len(c.strip()) > 60]
 
-    parts = re.split(numbered_split, t)
+    # 2️⃣ If numbering not found → split by sentences
+    if len(clauses) < 2:
+        sentences = re.split(r'(?<=[.!?]) +', t)
+        clauses = [s.strip() for s in sentences if len(s.strip()) > 80]
 
-    clauses = []
-    for part in parts:
-        cleaned = part.strip()
-        if not cleaned:
-            continue
-        # Skip very short fragments
-        if len(cleaned) < 60:
-            continue
-        # Optional: require contract-like keywords in non-Hindi parts
-        if not looks_like_contract(cleaned):
-            if not re.search(r'\b(sh all|must|liability|terminate|indemn|payment|party|breach|confidential|unlimited|sole discretion)\b', cleaned, re.I):
-                if not re.search(r'(दायित्व|क्षतिपूर्ति|समाप्ति|भुगतान|गोपनीयता|अनुबंध|पक्ष|उत्तरदायी|दंड|विवाद)', cleaned):
-                    continue
-        clauses.append(cleaned)
+    # 3️⃣ If still empty → split by paragraphs
+    if not clauses:
+        paragraphs = text.split("\n")
+        clauses = [p.strip() for p in paragraphs if len(p.strip()) > 100]
 
-    # Fallback: if still one big block → split on double newlines or strong separators
-    if len(clauses) <= 1:
-        fallback_parts = re.split(r'\n{2,}(?=\d+[.)]|\s*[A-Z][.)]\s)', t)
-        clauses = [p.strip() for p in fallback_parts if len(p.strip()) > 80]
+    # 4️⃣ Last fallback → return full contract
+    if not clauses:
+        return [text.strip()]
 
-    # Final cleanup
-    final = []
-    for c in clauses:
-        # Remove leftover HTML junk if any
-        c = re.sub(r'<[^>]+>', '', c)
-        c = re.sub(r'</?[^>]*', '', c)
-        c = re.sub(r'\s+', ' ', c).strip()
-        if len(c) > 70:
-            final.append(c)
-
-    # If nothing usable → return whole text as single clause
-    return final if final else [t.strip()]
+    return clauses
