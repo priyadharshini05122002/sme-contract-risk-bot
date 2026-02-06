@@ -1,0 +1,136 @@
+{
+  "analysis_id": 3,
+  "name": "My Analysis 2026-02-06",
+  "created_at": "2026-02-06T09:27:34.001033",
+  "language": "en",
+  "total_clauses": 6,
+  "summary": "This contract contains 6 clauses. 3 high risk and 2 medium risk found.",
+  "clauses": [
+    {
+      "id": 1,
+      "clause": "1. Unlimited Liability The Contractor shall be fully liable for any direct, indirect, incidental, or consequential damages, without limitation in amount or duration.",
+      "risk": "High",
+      "risk_score": 7,
+      "reasons": "unlimited liability, without limitation, liability",
+      "entities": [
+        {
+          "text": "1",
+          "label": "CARDINAL"
+        }
+      ],
+      "obligations": [
+        "Unlimited Liability The Contractor shall be fully liable for any direct, indirect, incidental, or consequential damages, without limitation in amount or duration."
+      ],
+      "suggestion": "Add a liability cap and exclude indirect damages.",
+      "comment": ""
+    },
+    {
+      "id": 2,
+      "clause": "2. Unilateral Termination The Company reserves the right to terminate this agreement at any time without notice or compensation.",
+      "risk": "High",
+      "risk_score": 5,
+      "reasons": "without notice, terminate, compensation",
+      "entities": [
+        {
+          "text": "2",
+          "label": "CARDINAL"
+        }
+      ],
+      "obligations": [],
+      "suggestion": null,
+      "comment": ""
+    },
+    {
+      "id": 3,
+      "clause": "3. No Payment Guarantee Payments may be withheld at the sole discretion of the Company, regardless of services rendered.",
+      "risk": "Medium",
+      "risk_score": 3,
+      "reasons": "sole discretion",
+      "entities": [
+        {
+          "text": "3",
+          "label": "CARDINAL"
+        },
+        {
+          "text": "No Payment Guarantee",
+          "label": "ORG"
+        },
+        {
+          "text": "Company",
+          "label": "ORG"
+        }
+      ],
+      "obligations": [],
+      "suggestion": null,
+      "comment": ""
+    },
+    {
+      "id": 4,
+      "clause": "4. Intellectual Property Transfer All work, ideas, and derivatives created by the Contractor shall automatically become the exclusive property of the Company without additional compensation.",
+      "risk": "Low",
+      "risk_score": 1,
+      "reasons": "compensation",
+      "entities": [
+        {
+          "text": "4",
+          "label": "CARDINAL"
+        },
+        {
+          "text": "Contractor",
+          "label": "PERSON"
+        }
+      ],
+      "obligations": [
+        "Intellectual Property Transfer All work, ideas, and derivatives created by the Contractor shall automatically become the exclusive property of the Company without additional compensation."
+      ],
+      "suggestion": null,
+      "comment": ""
+    },
+    {
+      "id": 5,
+      "clause": "5. Indemnification Clause The Contractor agrees to indemnify and hold harmless the Company against all claims, losses, or legal actions, including those arising from the Company’s own negligence.",
+      "risk": "High",
+      "risk_score": 6,
+      "reasons": "indemnify, hold harmless",
+      "entities": [
+        {
+          "text": "5",
+          "label": "CARDINAL"
+        },
+        {
+          "text": "Company",
+          "label": "ORG"
+        },
+        {
+          "text": "Company",
+          "label": "ORG"
+        }
+      ],
+      "obligations": [],
+      "suggestion": "Limit indemnity to direct damages and cap liability to contract value.",
+      "comment": ""
+    },
+    {
+      "id": 6,
+      "clause": "6. Governing Law This agreement shall be governed by the laws of a jurisdiction chosen solely by the Company. WARNING: This contract contains multiple high-risk clauses that may be unfavorable to one party.",
+      "risk": "Medium",
+      "risk_score": 2,
+      "reasons": "governing law, jurisdiction",
+      "entities": [
+        {
+          "text": "6",
+          "label": "CARDINAL"
+        },
+        {
+          "text": "one",
+          "label": "CARDINAL"
+        }
+      ],
+      "obligations": [
+        "This agreement shall be governed by the laws of a jurisdiction chosen solely by the Company."
+      ],
+      "suggestion": "Specify neutral arbitration location within India.",
+      "comment": ""
+    }
+  ]
+}
