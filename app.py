@@ -21,9 +21,10 @@ from utils import (
 
 # ─── Database & Auth imports ──────────────────────────────────────────────
 from db import (
-    init_db ,ensure_migrations,
+    init_db, ensure_migrations,
     save_analysis, list_analyses, save_embedding, delete_analysis, get_conn,
-    verify_user, get_user_by_email, register_user   # ← added these
+    verify_user, get_user_by_email, register_user,
+    q  # ← Import the q() helper for SQL placeholder conversion
 )
 
 # ────────────────────────────────────────────────
@@ -42,7 +43,7 @@ try:
 except Exception:
     pass
 
-#Cached models
+# Cached models
 @st.cache_resource
 def load_spacy_model():
     import spacy
@@ -60,8 +61,6 @@ def load_embedding_model():
         return None
 
 nlp = load_spacy_model()
-# nlp = None
-
 embed_model = load_embedding_model()
 
 # ────────────────────────────────────────────────
@@ -134,7 +133,7 @@ with st.sidebar:
                     user_id = verify_user(login_email.strip(), login_pw)
                     if user_id:
                         user = get_user_by_email(login_email.strip())
-                        if user is not None:                     # ← explicit check
+                        if user is not None:
                             st.session_state.user = user
                             st.success(f"Welcome, {user['email']}")
                             st.rerun()
@@ -225,15 +224,12 @@ for i, clause in enumerate(clauses, start=1):
 
     if advanced and nlp:
         doc = nlp(clause)
-
-    # if doc:
-    #     ner_entities = [{"text": ent.text, "label": ent.label_} for ent in doc.ents]
-
-    #     obligations = []
-    #     for sent in getattr(doc, "sents", []):
-    #         if re.search(r'\bshall\b|\bmust\b|\bagree to\b|\bwill\b', sent.text, flags=re.I):
-    #             obligations.append(sent.text)
-
+        # Uncomment if you want NER and obligations extraction
+        # ner_entities = [{"text": ent.text, "label": ent.label_} for ent in doc.ents]
+        # obligations = []
+        # for sent in getattr(doc, "sents", []):
+        #     if re.search(r'\bshall\b|\bmust\b|\bagree to\b|\bwill\b', sent.text, flags=re.I):
+        #         obligations.append(sent.text)
 
     risk, reasons, risk_score = analyze_clause_risk(clause)
     suggestion = suggest_alternatives_for_clause(clause, risk, reasons)
@@ -397,7 +393,6 @@ for idx, row in df.iterrows():
 # ────────────────────────────────────────────────
 st.sidebar.markdown("### 💾 Save / Export")
 name = st.sidebar.text_input("Analysis name", f"My Analysis {datetime.now().date()}")
-# owner_email = st.sidebar.text_input("Owner email (optional)", "")   # ← removed / not needed anymore
 
 if st.sidebar.button("💾 Save analysis"):
     clauses_data = [{str(k): v for k, v in row.items()} for row in df.to_dict(orient="records")]
@@ -407,7 +402,7 @@ if st.sidebar.button("💾 Save analysis"):
         language=lang,
         raw_text=contract_text,
         clauses=clauses_data,
-        owner_id=st.session_state.user["id"]   # ← now linked to logged-in user
+        owner_id=st.session_state.user["id"]
     )
 
     if analysis_id is not None:
@@ -506,7 +501,7 @@ if "confirm_delete_id" in st.session_state:
             name = it[1] if isinstance(it, tuple) else it.get("name", name)
             break
 
-    st.sidebar.warning(f"**Delete #{cid}?**  \n“{name}” will be **permanently removed**.")
+    st.sidebar.warning(f"**Delete #{cid}?**  \n"{name}" will be **permanently removed**.")
     c1, c2 = st.sidebar.columns(2)
 
     if c1.button("Yes – Delete", key=f"yes_{cid}"):
@@ -533,7 +528,7 @@ if not looks_like_contract(contract_text):
 st.markdown("---")
 st.caption("Built for Indian SMEs • Clause-level risk scoring • Plain language explanations • Suggested alternatives • Audit trail")
 
-# ─── Danger Zone ──────────────────────────────────────────────────────────
+# ─── Danger Zone - FIXED VERSION ──────────────────────────────────────────
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Danger Zone**")
 
@@ -548,9 +543,10 @@ if st.sidebar.button("🧹 Delete ALL **YOUR** Analyses", type="primary"):
                 cur = conn.cursor()
                 user_id = st.session_state.user["id"]
                 
-                cur.execute("DELETE FROM embeddings WHERE analysis_id IN (SELECT id FROM analyses WHERE owner_id = %s)", (user_id,))
-                cur.execute("DELETE FROM clauses WHERE analysis_id IN (SELECT id FROM analyses WHERE owner_id = %s)", (user_id,))
-                cur.execute("DELETE FROM analyses WHERE owner_id = %s", (user_id,))
+                # Use q() to convert placeholders automatically for SQLite/MySQL compatibility
+                cur.execute(q("DELETE FROM embeddings WHERE analysis_id IN (SELECT id FROM analyses WHERE owner_id = %s)"), (user_id,))
+                cur.execute(q("DELETE FROM clauses WHERE analysis_id IN (SELECT id FROM analyses WHERE owner_id = %s)"), (user_id,))
+                cur.execute(q("DELETE FROM analyses WHERE owner_id = %s"), (user_id,))
                 
                 conn.commit()
                 conn.close()
@@ -563,5 +559,8 @@ if st.sidebar.button("🧹 Delete ALL **YOUR** Analyses", type="primary"):
                 
             except Exception as e:
                 st.sidebar.error(f"Reset failed: {str(e)}")
-                if 'conn' in locals() and conn.open:
-                    conn.close()
+                if 'conn' in locals() and hasattr(conn, 'close'):
+                    try:
+                        conn.close()
+                    except:
+                        pass

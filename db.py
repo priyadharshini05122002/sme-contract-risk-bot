@@ -188,6 +188,40 @@ def init_db():
     print("DEBUG: Database initialized successfully")
 
 
+def ensure_migrations():
+    """
+    Run any necessary schema migrations.
+    For MySQL: schema is already correct via init_db()
+    For SQLite: checks and adds missing columns if needed
+    """
+    if is_mysql():
+        return  # MySQL schema is already correct
+    
+    # SQLite-only migrations
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    try:
+        # Check if 'is_admin' column exists in users table
+        cur.execute("PRAGMA table_info(users)")
+        columns = cur.fetchall()
+        
+        # Convert to list of column names
+        column_names = [col['name'] if isinstance(col, dict) else col[1] for col in columns]
+        
+        if 'is_admin' not in column_names:
+            cur.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+            print("DEBUG: Added 'is_admin' column to users table (SQLite)")
+        
+        conn.commit()
+        print("DEBUG: SQLite migrations completed")
+        
+    except Exception as e:
+        print(f"WARNING: Migration check failed: {e}")
+    finally:
+        conn.close()
+
+
 # ============================================================
 # User Management
 # ============================================================
