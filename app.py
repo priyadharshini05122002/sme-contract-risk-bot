@@ -21,7 +21,7 @@ from utils import (
 
 # ─── Database & Auth imports ──────────────────────────────────────────────
 from db import (
-    init_db, ensure_migrations,
+    init_db,
     save_analysis, list_analyses, save_embedding, delete_analysis, get_conn,
     verify_user, get_user_by_email, register_user,
     q  # ← Import the q() helper for SQL placeholder conversion
@@ -38,10 +38,10 @@ st.set_page_config(
 
 # Initialize DB
 init_db()
-try:
-    ensure_migrations()
-except Exception:
-    pass
+# try:
+#     ensure_migrations()
+# except Exception:
+#     pass
 
 # Cached models
 @st.cache_resource
