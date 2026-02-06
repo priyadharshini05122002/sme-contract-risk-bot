@@ -501,7 +501,8 @@ if "confirm_delete_id" in st.session_state:
             name = it[1] if isinstance(it, tuple) else it.get("name", name)
             break
 
-    st.sidebar.warning(f"**Delete #{cid}?**  \n"{name}" will be **permanently removed**.")
+        st.sidebar.warning(f'**Delete #{cid}?**  \n"{name}" will be **permanently removed**.')
+
     c1, c2 = st.sidebar.columns(2)
 
     if c1.button("Yes – Delete", key=f"yes_{cid}"):
