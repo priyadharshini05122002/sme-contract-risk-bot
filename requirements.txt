@@ -1,5 +1,5 @@
 streamlit
-pandas==2.1.4
+pandas
 numpy==1.26.4
 scikit-learn
 mysql-connector-python==8.3.0
