@@ -61,7 +61,8 @@ def load_embedding_model():
         return None
 
 nlp = load_spacy_model()
-embed_model = load_embedding_model()
+embed_model = None
+
 
 # ────────────────────────────────────────────────
 #  Custom styles
