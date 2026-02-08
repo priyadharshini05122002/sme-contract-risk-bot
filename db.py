@@ -12,7 +12,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Database Configuration
 # ============================================================
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///contract_analysis.db")
+# DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///contract_analysis.db")
+DATABASE_URL = "sqlite:///contract_analysis.db"
+
 
 
 # ============================================================
