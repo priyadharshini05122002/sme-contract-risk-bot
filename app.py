@@ -38,10 +38,10 @@ st.set_page_config(
 
 # Initialize DB
 init_db()
-# try:
-#     ensure_migrations()
-# except Exception:
-#     pass
+try:
+    ensure_migrations()
+except Exception:
+    pass
 
 # Cached models
 @st.cache_resource
@@ -54,10 +54,10 @@ def load_spacy_model():
 
 @st.cache_resource
 def load_embedding_model():
-    try:
-        from sentence_transformers import SentenceTransformer
-        return SentenceTransformer("all-MiniLM-L6-v2")
-    except Exception:
+    # try:
+    #     from sentence_transformers import SentenceTransformer
+    #     return SentenceTransformer("all-MiniLM-L6-v2")
+    # except Exception:
         return None
 
 nlp = load_spacy_model()
